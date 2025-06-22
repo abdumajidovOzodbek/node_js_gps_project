@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const proj4 = require("proj4");
 const kadastrData = require("./combined_kadastr_coordinates.json");
+const webhookEndpoint = "/tg";
 
 const token = "7702593390:AAGhJDRt3Rhc0ok-cUhsdDJH_jA1IXyMcF4";
 const bot = new TelegramBot(token, { polling: true });
@@ -355,32 +356,3 @@ async function processImageWithCoordinates(chatId, lat, lon) {
 }
 
 console.log("🤖✨ Telegram bot ishga tushdi va xizmatga tayyor!");
-async function handleIncomingRequest(event) {
-  let url = new URL(event.request.url);
-  let path = url.pathname;
-  let method = event.request.method;
-  let workerUrl = `${url.protocol}//${url.host}`;
-
-  if (method === "POST" && path === webhookEndpoint) {
-    const update = await event.request.json();
-    event.waitUntil(bot.processUpdate(update));
-    return new Response("✅ Webhook update qabul qilindi", { status: 200 });
-  }
-
-  if (method === "GET" && path === "/configure-webhook") {
-    const fullUrl = `https://api.telegram.org/bot${token}/setWebhook?url=${workerUrl}${webhookEndpoint}`;
-    const telegramResp = await fetch(fullUrl);
-    if (telegramResp.ok) {
-      return new Response("✅ Webhook muvaffaqiyatli o‘rnatildi", { status: 200 });
-    } else {
-      const errorText = await telegramResp.text();
-      return new Response(`❌ Xato: ${errorText}`, { status: 500 });
-    }
-  }
-
-  return new Response("❓ Not found", { status: 404 });
-}
-
-addEventListener("fetch", (event) => {
-  event.respondWith(handleIncomingRequest(event));
-});
