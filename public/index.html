@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Removal Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 20px;
+    }
+    canvas {
+      border: 1px solid black;
+      display: block;
+      margin: 20px auto;
+    }
+    #submitBtn {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Draw to Remove Object</h1>
+  <input type="file" id="imageUpload" accept="image/*">
+  <canvas id="canvas"></canvas>
+  <button id="submitBtn">Remove Object</button>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const submitBtn = document.getElementById('submitBtn');
+    let drawing = false;
+    let img = null;
+
+    const loadImage = (imageFile) => {
+      img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = URL.createObjectURL(imageFile);
+    };
+
+    // Allow users to draw on the canvas
+    canvas.addEventListener('mousedown', () => (drawing = true));
+    canvas.addEventListener('mouseup', () => (drawing = false));
+    canvas.addEventListener('mousemove', (e) => {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Semi-transparent red for mask
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+
+    document.getElementById('imageUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) loadImage(file);
+    });
+
+    // Send the image and the mask to the server
+    submitBtn.addEventListener('click', async () => {
+      const imageBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      const formData = new FormData();
+      formData.append('image', imageBlob);
+
+      const response = await fetch('/remove-object', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const resultBlob = await response.blob();
+        const url = URL.createObjectURL(resultBlob);
+        window.open(url, '_blank'); // Show the processed image in a new tab
+      } else {
+        alert('Failed to process the image');
+      }
+    });
+  </script>
+</body>
+</html>

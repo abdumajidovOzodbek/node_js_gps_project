@@ -2,7 +2,6 @@
   "name": "nodejs",
   "version": "1.0.0",
   "main": "index.js",
-  "type" : "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs-node": "^4.22.0",
     "@types/node": "^18.0.6",
     "axios": "^1.7.7",
     "body-parser": "^1.20.3",
@@ -22,8 +23,12 @@
     "fs-extra": "^11.2.0",
     "jimp": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.66.0",
+    "piexifjs": "^1.0.6",
+    "proj4": "^2.19.3",
+    "sharp": "^0.33.5",
     "socket.io": "^4.8.1",
     "stripe": "^17.4.0"
   },
