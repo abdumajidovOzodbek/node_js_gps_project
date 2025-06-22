@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "strat": "node tg.js"
+    "start": "node tg.js"
   },
   "keywords": [],
   "author": "",
